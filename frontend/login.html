@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Đăng nhập - Diệu Tướng Am</title>
+  
+  <!-- Google Identity Services -->
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
+  
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      min-height: 100vh;
+      background: #a41010 url('image/background_1.jpg') no-repeat center center / cover;
+      font-family: system-ui, -apple-system, sans-serif;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #ffffff; /* chữ chính: trắng */
+    }
+
+    .login-card {
+      width: 100%;
+      max-width: 480px;
+      background: rgba(164, 16, 16, 0.88); /* nền card đỏ đậm với opacity */
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border-radius: 24px;
+      padding: 40px 32px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.7);
+      border: 1px solid rgba(255, 255, 255, 0.15); /* viền trắng nhạt để nổi */
+      text-align: center;
+    }
+
+    .logo {
+      width: 200px;
+      height: 150px;
+      margin: 0 auto 20px;
+      display: block;
+    }
+
+    h1 {
+      font-size: 1.9rem;
+      font-weight: 700;
+      color: #ffffff; /* trắng */
+      margin-bottom: 8px;
+      text-shadow: 0 1px 4px rgba(0,0,0,0.6); /* bóng chữ cho nổi bật */
+    }
+
+    .subtitle {
+      font-size: 1rem;
+      color: #ffffff; /* trắng */
+      margin-bottom: 32px;
+      opacity: 0.9;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+      text-align: left;
+    }
+
+    label {
+      display: block;
+      font-size: 0.9rem;
+      color: #ffffff; /* trắng */
+      margin-bottom: 6px;
+    }
+
+    input {
+      width: 100%;
+      padding: 14px 16px;
+      border: 1px solid rgba(255, 255, 255, 0.4);
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.08);
+      color: #ffffff; /* chữ trong input trắng */
+      font-size: 1rem;
+      transition: all 0.25s;
+    }
+
+    input::placeholder {
+      color: rgba(255, 255, 255, 0.6); /* placeholder trắng nhạt */
+    }
+
+    input:focus {
+      outline: none;
+      border-color: #ffffff;
+      box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.25);
+    }
+
+    .forgot {
+      text-align: right;
+      margin: -8px 0 24px;
+    }
+
+    .forgot a {
+      color: #ffffff; /* trắng */
+      font-size: 0.9rem;
+      text-decoration: none;
+    }
+
+    .forgot a:hover {
+      text-decoration: underline;
+      opacity: 0.85;
+    }
+
+    .btn-login {
+      width: 100%;
+      padding: 14px;
+      background: linear-gradient(135deg, #ffffff, #e0e0e0); /* nút trắng để nổi bật trên nền đỏ */
+      color: #a41010; /* chữ nút đỏ để tương phản */
+      font-size: 1.05rem;
+      font-weight: 600;
+      border: none;
+      border-radius: 50px;
+      cursor: pointer;
+      transition: all 0.3s;
+      margin: 12px 0 24px;
+    }
+
+    .btn-login:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(255, 255, 255, 0.3);
+    }
+
+    .divider {
+      color: rgba(255, 255, 255, 0.7); /* trắng nhạt */
+      font-size: 0.9rem;
+      margin: 20px 0;
+    }
+
+    .social-container {
+      margin: 20px 0 28px;
+      display: flex;
+      justify-content: center;
+    }
+
+    .register {
+      font-size: 0.95rem;
+      color: #ffffff; /* trắng */
+    }
+
+    .register a {
+      color: #ffffff;
+      font-weight: 600;
+      text-decoration: none;
+    }
+
+    .register a:hover {
+      text-decoration: underline;
+      opacity: 0.85;
+    }
+
+    @media (max-width: 480px) {
+      .login-card {
+        margin: 20px;
+        padding: 32px 24px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<div class="login-card">
+  <img src="image/LOGO.png" alt="Diệu Tướng Am" class="logo">
+
+  <h1>DIỆU TƯỚNG AM</h1>
+
+  <form>
+    <div class="form-group">
+      <label>Email hoặc SĐT</label>
+      <input type="text" placeholder="Email hoặc số điện thoại" required>
+    </div>
+
+    <div class="form-group">
+      <label>Mật khẩu</label>
+      <input type="password" placeholder="Nhập mật khẩu" required>
+    </div>
+
+    <div class="forgot">
+      <a href="#">Quên mật khẩu?</a>
+    </div>
+
+    <button type="submit" class="btn-login">Đăng nhập</button>
+  </form>
+
+  <div class="divider">Hoặc đăng nhập bằng</div>
+
+  <!-- Sign in with Google -->
+  <div class="social-container">
+    <div id="g_id_onload"
+         data-client_id="153608421008-sai6g3t5vieh4pc434068g0427src3ck.apps.googleusercontent.com"
+         data-auto_prompt="false"
+         data-callback="handleGoogleSignIn"
+         data-hd="*">
+    </div>
+
+    <div class="g_id_signin"
+         data-type="standard"
+         data-size="large"
+         data-theme="outline"
+         data-text="signin_with"
+         data-shape="rectangular"
+         data-logo_alignment="left"
+         data-width="320">
+    </div>
+  </div>
+
+  <div class="register">
+    Chưa có tài khoản? <a href="#">Đăng ký ngay</a>
+  </div>
+</div>
+
+<script>
+  function handleGoogleSignIn(response) {
+    const idToken = response.credential;
+    console.log('Google ID Token:', idToken);
+
+    // Giải mã token thủ công để lấy thông tin user (chỉ dùng test, không an toàn production)
+    try {
+      const payload = JSON.parse(atob(idToken.split('.')[1]));
+      const user = {
+        name: payload.name || payload.given_name + ' ' + payload.family_name,
+        email: payload.email,
+        picture: payload.picture
+      };
+
+      // Lưu và redirect như backend thật
+      localStorage.setItem('userLoggedIn', 'true');
+      localStorage.setItem('userName', user.name || 'Khách');
+
+      alert('Đăng nhập thành công! Chào ' + user.name);
+      window.location.href = 'home.html';
+    } catch (err) {
+      console.error('Lỗi decode token:', err);
+      alert('Có lỗi xử lý token Google. Vui lòng thử lại.');
+    }
+  }
+</script>
+
+</body>
+</html>

@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Mua Hàng - Diệu Tướng Am</title>
+  
+  <style>
+    /* giữ nguyên style cũ, bổ sung */
+    .back-btn {
+      display: inline-block;
+      margin: 20px 0 40px;
+      padding: 12px 28px;
+      background: #d4af3744;
+      color: white;
+      border: 1px solid #d4af37;
+      border-radius: 50px;
+      text-decoration: none;
+      font-weight: 500;
+      transition: all 0.3s;
+    }
+    .back-btn:hover {
+      background: #d4af37;
+      color: #1a0f00;
+      transform: translateY(-2px);
+    }
+    .product-card button {
+      margin-top: 12px;
+      padding: 10px 24px;
+      background: linear-gradient(135deg, #d4af37, #b8972e);
+      color: #1a0f00;
+      border: none;
+      border-radius: 30px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.25s;
+    }
+    .product-card button:hover {
+      transform: scale(1.05);
+      box-shadow: 0 6px 20px rgba(212,175,55,0.4);
+    }
+  </style>
+</head>
+<body>
+
+<header style="text-align:center; margin:40px 0;">
+  <h1>Mua Hàng - Diệu Tướng Am</h1>
+  <p>Chọn những món đồ tâm linh ý nghĩa cho không gian thờ tự</p>
+  <a href="home.html" class="back-btn">← Quay về trang chủ</a>
+</header>
+
+<div id="loading" class="loading">Đang tải danh sách sản phẩm...</div>
+<div id="error" class="error" style="display:none; font-size:1.3rem; padding:40px; text-align:center;"></div>
+
+<div id="products" class="products" style="display:none;"></div>
+
+<script>
+// Bảo vệ trang: yêu cầu đăng nhập
+if (localStorage.getItem('userLoggedIn') !== 'true') {
+  alert('Vui lòng đăng nhập để xem và mua sản phẩm.');
+  window.location.href = 'login.html';
+  // hoặc có thể dùng replace để không lưu lịch sử: window.location.replace('login.html');
+}
+
+// Load sản phẩm
+const sheetUrl = 'https://docs.google.com/spreadsheets/d/YOUR_SPREADSHEET_ID/gviz/tq?tqx=out:json&sheet=Sản%20phẩm';
+// ↑↑ thay YOUR_SPREADSHEET_ID bằng ID thật của Google Sheet
+
+fetch(sheetUrl)
+  .then(response => response.text())
+  .then(text => {
+    try {
+      const jsonString = text.substring(text.indexOf('{'), text.lastIndexOf('}') + 1);
+      const data = JSON.parse(jsonString);
+      const rows = data.table.rows;
+
+      const container = document.getElementById('products');
+      const loading = document.getElementById('loading');
+      const errorDiv = document.getElementById('error');
+
+      if (!rows || rows.length === 0) {
+        errorDiv.textContent = 'Hiện chưa có sản phẩm nào trong danh mục.';
+        errorDiv.style.display = 'block';
+        loading.style.display = 'none';
+        return;
+      }
+
+      rows.forEach(row => {
+        const cells = row.c;
+        if (!cells || cells.length < 4) return;
+
+        const name  = cells[0]?.v || 'Sản phẩm';
+        const price = cells[1]?.v ? cells[1].v.toLocaleString('vi-VN') + ' ₫' : 'Liên hệ giá';
+        const img   = cells[2]?.v || 'https://via.placeholder.com/320x320/2c0f0f/ffffff?text=Diệu+Tướng+Am';
+        const desc  = cells[3]?.v || 'Sản phẩm tâm linh trang nghiêm, phù hợp thờ cúng';
+
+        const card = document.createElement('div');
+        card.className = 'product-card';
+        card.innerHTML = `
+          <img src="${img}" alt="${name}" onerror="this.src='https://via.placeholder.com/320x320/2c0f0f/ffffff?text=Ảnh+đang+cập+nhật'">
+          <h3>${name}</h3>
+          <div class="price">${price}</div>
+          <p class="desc">${desc}</p>
+          <button>Thêm vào giỏ hàng</button>
+        `;
+        container.appendChild(card);
+      });
+
+      loading.style.display = 'none';
+      container.style.display = 'grid';
+    } catch (e) {
+      throw new Error('Lỗi phân tích dữ liệu từ Google Sheet');
+    }
+  })
+  .catch(err => {
+    console.error(err);
+    document.getElementById('loading').style.display = 'none';
+    document.getElementById('error').textContent = 'Không thể tải danh sách sản phẩm. Vui lòng kiểm tra kết nối hoặc liên hệ hỗ trợ.';
+    document.getElementById('error').style.display = 'block';
+  });
+</script>
+
+</body>
+</html>

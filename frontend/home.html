@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Trang chủ - Diệu Tướng Am</title>
+  
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background: #1a0f00 url('image/background.jpg') no-repeat center center / cover;
+      font-family: system-ui, -apple-system, sans-serif;
+      color: #fff;
+      line-height: 1.6;
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 20px 5%;
+      background: rgba(0,0,0,0.5);
+      backdrop-filter: blur(8px);
+      position: fixed;
+      width: 100%;
+      top: 0;
+      z-index: 1000;
+    }
+
+    .logo-header {
+      height: 60px;
+    }
+
+    nav a {
+      color: #fff;
+      text-decoration: none;
+      margin: 0 18px;
+      font-weight: 500;
+      transition: color 0.3s;
+    }
+
+    nav a:hover {
+      color: #d4af37;
+    }
+
+    .hero {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      padding: 0 5%;
+      background: linear-gradient(rgba(26,15,0,0.65), rgba(26,15,0,0.75));
+    }
+
+    .hero h1 {
+      font-size: 3.8rem;
+      margin-bottom: 1.2rem;
+      text-shadow: 0 4px 12px rgba(0,0,0,0.8);
+    }
+
+    .welcome-msg {
+      font-size: 1.5rem;
+      margin: 20px 0 40px;
+      color: #d4af37;
+      font-weight: 500;
+      text-shadow: 0 2px 8px rgba(0,0,0,0.7);
+    }
+
+    .btn-primary {
+      display: inline-block;
+      padding: 16px 48px;
+      background: linear-gradient(135deg, #d4af37, #b8972e);
+      color: #1a0f00;
+      text-decoration: none;
+      font-size: 1.3rem;
+      font-weight: 700;
+      border-radius: 50px;
+      margin: 12px;
+      transition: all 0.3s;
+      box-shadow: 0 6px 20px rgba(212,175,55,0.4);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 12px 30px rgba(212,175,55,0.6);
+    }
+
+    .btn-secondary {
+      padding: 14px 40px;
+      background: linear-gradient(135deg, #ffffff22, #ffffff44);
+      color: #fff;
+      border: 1px solid #d4af37;
+      border-radius: 50px;
+      text-decoration: none;
+      font-weight: 500;
+      transition: all 0.3s;
+      margin: 12px;
+    }
+
+    .btn-secondary:hover {
+      background: #d4af3744;
+      transform: translateY(-2px);
+    }
+
+    .section-title {
+      text-align: center;
+      font-size: 2.6rem;
+      margin: 80px 0 50px;
+      color: #d4af37;
+    }
+
+    .features {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 40px;
+      padding: 0 5%;
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    .feature-card {
+      background: rgba(255,255,255,0.06);
+      backdrop-filter: blur(10px);
+      border-radius: 20px;
+      padding: 32px;
+      text-align: center;
+      border: 1px solid rgba(212,175,55,0.18);
+      transition: all 0.4s;
+    }
+
+    .feature-card:hover {
+      transform: translateY(-12px);
+      border-color: #d4af37;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+    }
+
+    footer {
+      text-align: center;
+      padding: 60px 5% 30px;
+      background: rgba(0,0,0,0.7);
+      margin-top: 100px;
+    }
+
+    @media (max-width: 768px) {
+      .hero h1 { font-size: 2.8rem; }
+      nav { display: none; } /* có thể thêm menu hamburger sau */
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <img src="image/LOGO.png" alt="Diệu Tướng Am" class="logo-header">
+  <nav>
+    <a href="#home">Trang chủ</a>
+    <a href="#sanpham">Sản phẩm</a>
+    <a href="#khonggian">Không gian thờ</a>
+    <a href="#tintuc">Tin tức</a>
+    <a href="login.html" id="auth-link">Đăng nhập</a>
+  </nav>
+</header>
+
+<section class="hero" id="home">
+  <h1>Chào mừng đến với Diệu Tướng Am</h1>
+  
+  <div id="welcome" class="welcome-msg" style="display:none;"></div>
+  
+  <p style="font-size:1.3rem; max-width:720px; margin:0 auto 40px; opacity:0.95;">
+    Không gian Nghệ thuật Phật Giáo – Nơi gieo mầm chánh niệm, tìm về bình an giữa dòng đời hối hả. 
+    Tôn vinh vẻ đẹp tâm linh qua những tác phẩm tinh xảo, trang nghiêm.
+  </p>
+  
+  <div>
+    <a href="mua-hang.html" class="btn-primary">Khám phá & Mua hàng ngay</a>
+    <a href="#sanpham" class="btn-secondary">Xem sản phẩm nổi bật</a>
+  </div>
+</section>
+
+<section id="sanpham">
+  <h2 class="section-title">Sản phẩm nổi bật</h2>
+  <div class="features">
+    <!-- Bạn có thể giữ nguyên hoặc thay bằng 3 card sản phẩm mẫu -->
+    <div class="feature-card">
+      <h3>Tượng Phật A Di Đà</h3>
+      <p>Thờ tự trang nghiêm, mang lại bình an & trí tuệ.</p>
+    </div>
+    <div class="feature-card">
+      <h3>Chuông mõ đồng</h3>
+      <p>Âm thanh thanh tịnh, hỗ trợ thiền định hàng ngày.</p>
+    </div>
+    <div class="feature-card">
+      <h3>Tranh Thangka thủ công</h3>
+      <p>Tác phẩm nghệ thuật Phật giáo cao cấp, quý hiếm.</p>
+    </div>
+  </div>
+
+  <div style="text-align:center; margin:80px 0;">
+    <a href="mua-hang.html" class="btn-primary" style="padding:18px 70px; font-size:1.4rem;">
+      Xem toàn bộ sản phẩm → Mua sắm ngay
+    </a>
+  </div>
+</section>
+
+<footer>
+  <p>© 2025 Diệu Tướng Am – Mang tâm linh đến gần hơn với cuộc sống</p>
+  <p style="margin-top:12px; opacity:0.8;">Liên hệ: di eutruongam@gmail.com | 090x xxx xxx</p>
+</footer>
+
+<script>
+// Kiểm tra đăng nhập & cập nhật giao diện
+window.addEventListener('load', () => {
+  const isLoggedIn = localStorage.getItem('userLoggedIn') === 'true';
+  const userName   = localStorage.getItem('userName') || 'Quý khách';
+
+  const welcomeEl  = document.getElementById('welcome');
+  const authLink   = document.getElementById('auth-link');
+
+  if (isLoggedIn) {
+    welcomeEl.textContent = `Chào ${userName}, chúc quý vị an lạc và nhiều phước lành! 🙏`;
+    welcomeEl.style.display = 'block';
+    authLink.textContent = 'Đăng xuất';
+    authLink.href = '#';
+    
+    // Xử lý đăng xuất (xoá localStorage và reload)
+    authLink.addEventListener('click', (e) => {
+      e.preventDefault();
+      if (confirm('Bạn muốn đăng xuất?')) {
+        localStorage.removeItem('userLoggedIn');
+        localStorage.removeItem('userName');
+        window.location.reload();
+      }
+    });
+  } else {
+    welcomeEl.style.display = 'none';
+    authLink.textContent = 'Đăng nhập';
+    authLink.href = 'login.html';
+  }
+});
+</script>
+
+</body>
+</html>
