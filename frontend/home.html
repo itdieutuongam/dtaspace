@@ -13,7 +13,7 @@
     }
 
     body {
-      background: #1a0f00 url('image/background.jpg') no-repeat center center / cover;
+      background: #a41010 url('image/background.jpg') no-repeat center center / cover;
       font-family: system-ui, -apple-system, sans-serif;
       color: #fff;
       line-height: 1.6;
@@ -33,7 +33,7 @@
     }
 
     .logo-header {
-      height: 60px;
+      height: 100px;
     }
 
     nav a {
@@ -172,9 +172,6 @@
   
   <div id="welcome" class="welcome-msg" style="display:none;"></div>
   
-  <p style="font-size:1.3rem; max-width:720px; margin:0 auto 40px; opacity:0.95;">
-    Không gian Nghệ thuật Phật Giáo – Nơi gieo mầm chánh niệm, tìm về bình an giữa dòng đời hối hả. 
-    Tôn vinh vẻ đẹp tâm linh qua những tác phẩm tinh xảo, trang nghiêm.
   </p>
   
   <div>
@@ -223,7 +220,7 @@ window.addEventListener('load', () => {
   const authLink   = document.getElementById('auth-link');
 
   if (isLoggedIn) {
-    welcomeEl.textContent = `Chào ${userName}, chúc quý vị an lạc và nhiều phước lành! 🙏`;
+    welcomeEl.textContent = `Chào ${userName}`;
     welcomeEl.style.display = 'block';
     authLink.textContent = 'Đăng xuất';
     authLink.href = '#';

@@ -219,20 +219,18 @@
 <script>
   function handleGoogleSignIn(response) {
     const idToken = response.credential;
-    console.log('Google ID Token:', idToken);
-
-    // Giải mã token thủ công để lấy thông tin user (chỉ dùng test, không an toàn production)
     try {
       const payload = JSON.parse(atob(idToken.split('.')[1]));
       const user = {
-        name: payload.name || payload.given_name + ' ' + payload.family_name,
+        name: payload.name || (payload.given_name + ' ' + (payload.family_name || '')),
         email: payload.email,
         picture: payload.picture
       };
 
-      // Lưu và redirect như backend thật
+      // Lưu thêm email để phân quyền
       localStorage.setItem('userLoggedIn', 'true');
       localStorage.setItem('userName', user.name || 'Khách');
+      localStorage.setItem('userEmail', user.email || '');   // ← THÊM DÒNG NÀY
 
       alert('Đăng nhập thành công! Chào ' + user.name);
       window.location.href = 'home.html';

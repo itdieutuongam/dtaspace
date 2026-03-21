@@ -3,122 +3,342 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Mua Hàng - Diệu Tướng Am</title>
-  
+  <title>Quản lý Yêu cầu Mua Hàng - Diệu Tướng Am</title>
   <style>
-    /* giữ nguyên style cũ, bổ sung */
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body {
+      background: #a41010 url('image/background.jpg') no-repeat center center / cover;
+      font-family: system-ui, -apple-system, sans-serif;
+      color: #fff;
+      min-height: 100vh;
+    }
+    header { text-align:center; padding: 30px 20px 20px; background: rgba(0,0,0,0.6); }
+    header h1 { color: #fff; font-size: 2rem; margin-bottom: 6px; }
+    header p  { color: rgba(255,255,255,0.85); font-size: 1rem; }
+    .header-meta { display:flex; align-items:center; justify-content:center; gap:16px; margin-top:14px; flex-wrap:wrap; }
     .back-btn {
-      display: inline-block;
-      margin: 20px 0 40px;
-      padding: 12px 28px;
-      background: #d4af3744;
-      color: white;
-      border: 1px solid #d4af37;
-      border-radius: 50px;
-      text-decoration: none;
-      font-weight: 500;
-      transition: all 0.3s;
+      display:inline-block; padding:10px 24px;
+      background:rgba(255,255,255,0.15); color:white;
+      border:1px solid #d4af37; border-radius:50px;
+      text-decoration:none; font-weight:500; transition:all .25s;
     }
-    .back-btn:hover {
-      background: #d4af37;
-      color: #1a0f00;
-      transform: translateY(-2px);
+    .back-btn:hover { background:#d4af37; color:#1a0f00; }
+    .role-badge { padding:6px 18px; border-radius:50px; font-size:.85rem; font-weight:700; letter-spacing:.5px; }
+    .role-badge.r1 { background:#d4af37; color:#1a0f00; }
+    .role-badge.r2 { background:#fff; color:#a41010; }
+
+    .table-wrap { overflow-x:auto; margin:24px 3% 60px; }
+    table { width:100%; border-collapse:collapse; background:#fff; border:2px solid #a41010; box-shadow:0 4px 20px rgba(0,0,0,0.4); border-radius:10px; overflow:hidden; }
+    th { background:#a41010; color:#fff; font-weight:700; padding:13px 10px; text-align:left; white-space:nowrap; font-size:.88rem; }
+    td { padding:11px 10px; border:1px solid #e0c0c0; color:#1a0000; vertical-align:middle; font-size:.9rem; }
+    tr:nth-child(even) td { background:#fdf5f5; }
+    tr:hover td { background:#ffeaea; transition:background .15s; }
+
+    .status-pill { display:inline-block; padding:4px 12px; border-radius:50px; font-size:.8rem; font-weight:700; white-space:nowrap; }
+    .pill-duyet   { background:#d4edda; color:#155724; }
+    .pill-tuchoi  { background:#f8d7da; color:#721c24; }
+    .pill-dangmua { background:#fff3cd; color:#856404; }
+    .pill-damua   { background:#cce5ff; color:#004085; }
+    .pill-empty   { background:#eee;    color:#888; }
+
+    select { padding:6px 10px; border:1.5px solid #a41010; border-radius:8px; background:#fff; color:#000; cursor:pointer; font-size:.88rem; transition:border-color .2s, box-shadow .2s; }
+    select:focus   { outline:none; border-color:#d4af37; box-shadow:0 0 0 3px #d4af3744; }
+    select:disabled{ opacity:.5; cursor:not-allowed; }
+
+    /* Cot hinh anh */
+    .img-cell { display:flex; flex-direction:column; gap:6px; align-items:flex-start; }
+    .img-link {
+      display:inline-flex; align-items:center; gap:5px;
+      color:#a41010; font-size:.85rem; font-weight:600;
+      text-decoration:none; background:#ffeaea;
+      border:1px solid #e0a0a0; border-radius:6px;
+      padding:5px 10px; transition:background .2s;
+      max-width:200px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
     }
-    .product-card button {
-      margin-top: 12px;
-      padding: 10px 24px;
-      background: linear-gradient(135deg, #d4af37, #b8972e);
-      color: #1a0f00;
-      border: none;
-      border-radius: 30px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.25s;
+    .img-link:hover { background:#ffd0d0; text-decoration:underline; }
+    .no-img { color:#aaa; font-size:.8rem; font-style:italic; }
+    .up-btn {
+      background:#a41010; color:#fff; padding:6px 12px;
+      border:none; border-radius:8px; cursor:pointer;
+      font-size:.8rem; font-weight:700;
+      transition:background .2s, transform .1s; display:inline-block;
     }
-    .product-card button:hover {
-      transform: scale(1.05);
-      box-shadow: 0 6px 20px rgba(212,175,55,0.4);
+    .up-btn:hover { background:#7a0b0b; transform:translateY(-1px); }
+
+    .loading, .msg-error { text-align:center; padding:60px 20px; font-size:1.3rem; }
+    .msg-error { color:#ffcccc; }
+
+    .modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.75); z-index:2000; justify-content:center; align-items:center; }
+    .modal-overlay.open { display:flex; }
+    .modal-box { background:#fff; border-radius:16px; padding:32px 28px; width:92%; max-width:480px; text-align:center; color:#1a0000; box-shadow:0 20px 60px rgba(0,0,0,0.6); animation:popIn .2s ease; }
+    @keyframes popIn { from{transform:scale(.9);opacity:0} to{transform:scale(1);opacity:1} }
+    .modal-box h2 { color:#a41010; margin-bottom:14px; font-size:1.3rem; }
+    .modal-box input { width:100%; padding:12px 14px; border:1.5px solid #ccc; border-radius:10px; font-size:.95rem; margin:10px 0 20px; transition:border-color .2s; }
+    .modal-box input:focus { outline:none; border-color:#a41010; }
+    .modal-actions { display:flex; gap:12px; justify-content:center; }
+    .modal-save   { padding:11px 28px; background:#a41010; color:#fff; border:none; border-radius:50px; cursor:pointer; font-weight:700; }
+    .modal-save:hover { background:#7a0b0b; }
+    .modal-cancel { padding:11px 28px; background:#eee; color:#333; border:none; border-radius:50px; cursor:pointer; }
+
+    #toast {
+      position:fixed; bottom:28px; left:50%; transform:translateX(-50%) translateY(80px);
+      background:#1a0000; color:#fff; padding:12px 28px; border-radius:50px;
+      font-weight:600; font-size:.95rem; z-index:9999;
+      transition:transform .35s cubic-bezier(.175,.885,.32,1.275);
+      pointer-events:none; white-space:nowrap;
+    }
+    #toast.show { transform:translateX(-50%) translateY(0); }
+
+    @media (max-width:768px) {
+      header h1 { font-size:1.4rem; }
+      .table-wrap { margin:16px 1% 40px; }
     }
   </style>
 </head>
 <body>
 
-<header style="text-align:center; margin:40px 0;">
-  <h1>Mua Hàng - Diệu Tướng Am</h1>
-  <p>Chọn những món đồ tâm linh ý nghĩa cho không gian thờ tự</p>
-  <a href="home.html" class="back-btn">← Quay về trang chủ</a>
+<header>
+  <h1>Quản lý Yêu cầu Mua Hàng - Diệu Tướng Am</h1>
+  <p>Danh sách đơn hàng từ khách hàng</p>
+  <div class="header-meta">
+    <a href="home.html" class="back-btn">← Quay về trang chủ</a>
+    <span id="roleBadge" class="role-badge"></span>
+  </div>
 </header>
 
-<div id="loading" class="loading">Đang tải danh sách sản phẩm...</div>
-<div id="error" class="error" style="display:none; font-size:1.3rem; padding:40px; text-align:center;"></div>
+<div id="loadingMsg" class="loading">⏳ Đang tải dữ liệu…</div>
+<div id="errorMsg" class="msg-error" style="display:none;"></div>
+<div class="table-wrap" id="tableWrap" style="display:none;">
+  <table id="mainTable"></table>
+</div>
 
-<div id="products" class="products" style="display:none;"></div>
+<div class="modal-overlay" id="imageModal">
+  <div class="modal-box">
+    <h2>📷 Cập nhật hình ảnh</h2>
+    <p style="font-size:.9rem;color:#555;margin-bottom:4px;">Dán link Google Drive bên dưới:</p>
+    <input type="text" id="newImageUrl" placeholder="https://drive.google.com/file/d/...">
+    <div class="modal-actions">
+      <button class="modal-save" onclick="saveImage()">Lưu</button>
+      <button class="modal-cancel" onclick="closeModal()">Hủy</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
 
 <script>
-// Bảo vệ trang: yêu cầu đăng nhập
-if (localStorage.getItem('userLoggedIn') !== 'true') {
-  alert('Vui lòng đăng nhập để xem và mua sản phẩm.');
+const SHEET_ID = '1zfrE-ijCfdXvbdS3b_2ye1WMMjmCMyxtA2_ZHpQEhJw';
+const GID      = '1555363511';
+const API_URL  = 'https://script.google.com/macros/s/AKfycby2Zc3inC7xAf9wU1xMlXwvdf2maxbkC6Hzkj7oleMNpk034-bGMQrC8dxiWuyTtm0-VQ/exec';
+
+const userEmail    = (localStorage.getItem('userEmail') || '').trim().toLowerCase();
+const level1Emails = ['thietke@dieutuongam.com'];
+const level2Emails = ['ptsp@dieutuongam.com', 'it@dieutuongam.com','lehuyen@dieutuongam.com','truongkhuong@dieutuongam.com','hongtuyet@dieutuongam.com'];
+
+let role = 0;
+if (!userEmail) {
+  alert('Vui long dang nhap de tiep tuc.');
   window.location.href = 'login.html';
-  // hoặc có thể dùng replace để không lưu lịch sử: window.location.replace('login.html');
+} else if (level1Emails.includes(userEmail)) {
+  role = 1;
+} else if (level2Emails.includes(userEmail)) {
+  role = 2;
+} else {
+  alert('Tai khoan khong co quyen truy cap trang nay.');
+  window.location.href = 'home.html';
 }
 
-// Load sản phẩm
-const sheetUrl = 'https://docs.google.com/spreadsheets/d/YOUR_SPREADSHEET_ID/gviz/tq?tqx=out:json&sheet=Sản%20phẩm';
-// ↑↑ thay YOUR_SPREADSHEET_ID bằng ID thật của Google Sheet
+const badge = document.getElementById('roleBadge');
+if (role === 1) { badge.textContent = '🎨 Thiết kế (Level 1)'; badge.classList.add('r1'); }
+if (role === 2) { badge.textContent = '🛒 Mua hàng (Level 2)'; badge.classList.add('r2'); }
 
-fetch(sheetUrl)
-  .then(response => response.text())
+const COLS_COMMON = [
+  { idx:0,  label:'STT' },
+  { idx:1,  label:'Thời gian' },
+  { idx:2,  label:'Họ và Tên' },
+  { idx:3,  label:'Số điện thoại' },
+  { idx:4,  label:'Nội dung 1' },
+  { idx:5,  label:'Nội dung 2' },
+  { idx:6,  label:'Nội dung 3' },
+  { idx:7,  label:'Nội dung 4' },
+];
+const COL_HINH = { idx:8,  label:'Hình ảnh',    isUpBtn:  true, colSheet:9,  editable:{1:true,  2:false} };
+const COL_J    = { idx:9,  label:'Trạng thái 1', isSelect: true, colSheet:10, editable:{1:false, 2:true},  options:['','DUYỆT','TỪ CHỐI'] };
+const COL_K    = { idx:10, label:'Mua hàng',     isSelect: true, colSheet:11, editable:{1:false, 2:true},  options:['','ĐANG MUA','ĐÃ MUA'] };
+const COL_L    = { idx:11, label:'Trạng thái 2', isSelect: true, colSheet:12, editable:{1:false, 2:true},  options:['','DUYỆT','TỪ CHỐI'] };
+const ALL_COLS = [...COLS_COMMON, COL_HINH, COL_J, COL_K, COL_L];
+
+const READ_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&gid=${GID}`;
+
+fetch(READ_URL)
+  .then(r => r.text())
   .then(text => {
-    try {
-      const jsonString = text.substring(text.indexOf('{'), text.lastIndexOf('}') + 1);
-      const data = JSON.parse(jsonString);
-      const rows = data.table.rows;
-
-      const container = document.getElementById('products');
-      const loading = document.getElementById('loading');
-      const errorDiv = document.getElementById('error');
-
-      if (!rows || rows.length === 0) {
-        errorDiv.textContent = 'Hiện chưa có sản phẩm nào trong danh mục.';
-        errorDiv.style.display = 'block';
-        loading.style.display = 'none';
-        return;
-      }
-
-      rows.forEach(row => {
-        const cells = row.c;
-        if (!cells || cells.length < 4) return;
-
-        const name  = cells[0]?.v || 'Sản phẩm';
-        const price = cells[1]?.v ? cells[1].v.toLocaleString('vi-VN') + ' ₫' : 'Liên hệ giá';
-        const img   = cells[2]?.v || 'https://via.placeholder.com/320x320/2c0f0f/ffffff?text=Diệu+Tướng+Am';
-        const desc  = cells[3]?.v || 'Sản phẩm tâm linh trang nghiêm, phù hợp thờ cúng';
-
-        const card = document.createElement('div');
-        card.className = 'product-card';
-        card.innerHTML = `
-          <img src="${img}" alt="${name}" onerror="this.src='https://via.placeholder.com/320x320/2c0f0f/ffffff?text=Ảnh+đang+cập+nhật'">
-          <h3>${name}</h3>
-          <div class="price">${price}</div>
-          <p class="desc">${desc}</p>
-          <button>Thêm vào giỏ hàng</button>
-        `;
-        container.appendChild(card);
-      });
-
-      loading.style.display = 'none';
-      container.style.display = 'grid';
-    } catch (e) {
-      throw new Error('Lỗi phân tích dữ liệu từ Google Sheet');
-    }
+    const json = text.substring(text.indexOf('(') + 1, text.lastIndexOf(')'));
+    buildTable(JSON.parse(json).table.rows || []);
   })
   .catch(err => {
-    console.error(err);
-    document.getElementById('loading').style.display = 'none';
-    document.getElementById('error').textContent = 'Không thể tải danh sách sản phẩm. Vui lòng kiểm tra kết nối hoặc liên hệ hỗ trợ.';
-    document.getElementById('error').style.display = 'block';
+    document.getElementById('loadingMsg').style.display = 'none';
+    const el = document.getElementById('errorMsg');
+    el.textContent = '❌ Không tải được dữ liệu. Kiểm tra Sheet đã publish public chưa.';
+    el.style.display = 'block';
   });
-</script>
 
+function imgLinkHtml(val) {
+  if (!val) return '<span class="no-img">Chua co anh</span>';
+  // Rut gon hien thi nhung van giu full link trong href
+  return `<a href="${val}" target="_blank" class="img-link" title="${val}">🔗 Xem hình ảnh</a>`;
+}
+
+function buildTable(rows) {
+  document.getElementById('loadingMsg').style.display = 'none';
+  if (rows.length === 0) {
+    const el = document.getElementById('errorMsg');
+    el.textContent = 'Chưa có yêu cầu nào.';
+    el.style.display = 'block';
+    return;
+  }
+  const table = document.getElementById('mainTable');
+  let thead = '<thead><tr>';
+  ALL_COLS.forEach(c => { thead += `<th>${c.label}</th>`; });
+  thead += '</tr></thead>';
+
+  let tbody = '<tbody>';
+  rows.forEach((row, i) => {
+    const cells    = row.c || [];
+    const sheetRow = i + 2;
+    tbody += `<tr data-row="${sheetRow}">`;
+    ALL_COLS.forEach(col => {
+      const cell = cells[col.idx];
+      const val  = cell ? String(cell.v ?? cell.f ?? '') : '';
+
+      if (col.isUpBtn) {
+        const canEdit = col.editable[role] === true;
+        tbody += `<td>
+          <div class="img-cell">
+            ${imgLinkHtml(val)}
+            ${canEdit ? `<button class="up-btn" onclick="openModal(${sheetRow})">📷 UP HÌNH</button>` : ''}
+          </div>
+        </td>`;
+
+      } else if (col.isSelect) {
+        const canEdit = col.editable[role] === true;
+        if (canEdit) {
+          let sel = `<select onchange="updateCell(this,${sheetRow},${col.colSheet})">`;
+          col.options.forEach(opt => {
+            sel += `<option value="${opt}" ${val===opt?'selected':''}>${opt||'— Chưa chọn —'}</option>`;
+          });
+          sel += '</select>';
+          tbody += `<td>${sel}</td>`;
+        } else {
+          tbody += `<td>${statusPill(val)}</td>`;
+        }
+      } else {
+        tbody += `<td>${val}</td>`;
+      }
+    });
+    tbody += '</tr>';
+  });
+  tbody += '</tbody>';
+  table.innerHTML = thead + tbody;
+  document.getElementById('tableWrap').style.display = 'block';
+}
+
+function statusPill(val) {
+  if (!val) return '<span class="status-pill pill-empty">—</span>';
+  const map = { 'DUYỆT':'pill-duyet','TỪ CHỐI':'pill-tuchoi','ĐANG MUA':'pill-dangmua','ĐÃ MUA':'pill-damua' };
+  return `<span class="status-pill ${map[val]||'pill-empty'}">${val}</span>`;
+}
+
+// Modal
+let _modalRow = null;
+function openModal(row) {
+  _modalRow = row;
+  document.getElementById('newImageUrl').value = '';
+  // Hien thi link hien tai vao input neu da co
+  const tr = document.querySelector(`tr[data-row="${row}"]`);
+  if (tr) {
+    const link = tr.querySelector('.img-link');
+    if (link) document.getElementById('newImageUrl').value = link.href;
+  }
+  document.getElementById('imageModal').classList.add('open');
+}
+function closeModal() {
+  document.getElementById('imageModal').classList.remove('open');
+}
+
+async function saveImage() {
+  const link = document.getElementById('newImageUrl').value.trim();
+  if (!link) { showToast('⚠️ Vui lòng dán link Drive!'); return; }
+
+  const success = await postToSheet(_modalRow, 9, link);
+  if (success) {
+    // Cap nhat link hien thi ngay lap tuc trong bang
+    const tr = document.querySelector(`tr[data-row="${_modalRow}"]`);
+    if (tr) {
+      const imgCell = tr.querySelector('.img-cell');
+      if (imgCell) {
+        // Xoa link/span cu, giu lai nut UP HINH
+        imgCell.querySelectorAll('.img-link, .no-img').forEach(el => el.remove());
+        // Chen link moi vao dau
+        const a = document.createElement('a');
+        a.href      = link;
+        a.target    = '_blank';
+        a.className = 'img-link';
+        a.title     = link;
+        a.innerHTML = '🔗 Xem hình ảnh';
+        imgCell.insertBefore(a, imgCell.firstChild);
+      }
+    }
+    showToast('✅ Đã cập nhật hình ảnh!');
+    closeModal();
+  }
+}
+
+async function updateCell(selectEl, sheetRow, colSheet) {
+  const value   = selectEl.value;
+  const prevIdx = selectEl.dataset.prevIdx !== undefined ? selectEl.dataset.prevIdx : selectEl.selectedIndex;
+  if (!value) return;
+  selectEl.disabled = true;
+  const success = await postToSheet(sheetRow, colSheet, value);
+  selectEl.disabled = false;
+  if (success) {
+    selectEl.dataset.prevIdx = selectEl.selectedIndex;
+    showToast('✅ Đã cập nhật: "' + value + '"');
+  } else {
+    selectEl.selectedIndex = Number(prevIdx);
+  }
+}
+
+async function postToSheet(row, col, value) {
+  if (!API_URL || API_URL.includes('YOUR_SCRIPT_ID')) {
+    showToast('⚠️ Chưa cấu hình API_URL!');
+    return false;
+  }
+  try {
+    await fetch(API_URL, {
+      method:'POST', mode:'no-cors', redirect:'follow',
+      headers:{'Content-Type':'text/plain;charset=utf-8'},
+      body: JSON.stringify({ row, col, value })
+    });
+    return true;
+  } catch(err) {
+    showToast('❌ Lỗi kết nối: ' + err.message);
+    return false;
+  }
+}
+
+let _toastTimer = null;
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(_toastTimer);
+  _toastTimer = setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+document.getElementById('imageModal').addEventListener('click', function(e) {
+  if (e.target === this) closeModal();
+});
+</script>
 </body>
 </html>
