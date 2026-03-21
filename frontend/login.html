@@ -220,19 +220,23 @@
   function handleGoogleSignIn(response) {
     const idToken = response.credential;
     try {
-      const payload = JSON.parse(atob(idToken.split('.')[1]));
-      const user = {
-        name: payload.name || (payload.given_name + ' ' + (payload.family_name || '')),
-        email: payload.email,
-        picture: payload.picture
-      };
+      // Dùng decodeURIComponent để hỗ trợ tiếng Việt và Unicode
+      const base64 = idToken.split('.')[1].replace(/-/g, '+').replace(/_/g, '/');
+      const jsonPayload = decodeURIComponent(
+        atob(base64).split('').map(c =>
+          '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)
+        ).join('')
+      );
+      const payload = JSON.parse(jsonPayload);
 
-      // Lưu thêm email để phân quyền
+      const name  = payload.name || ((payload.given_name || '') + ' ' + (payload.family_name || '')).trim();
+      const email = payload.email || '';
+
       localStorage.setItem('userLoggedIn', 'true');
-      localStorage.setItem('userName', user.name || 'Khách');
-      localStorage.setItem('userEmail', user.email || '');   // ← THÊM DÒNG NÀY
+      localStorage.setItem('userName',    name  || 'Khách');
+      localStorage.setItem('userEmail',   email);
 
-      alert('Đăng nhập thành công! Chào ' + user.name);
+      alert('Đăng nhập thành công! Chào ' + name);
       window.location.href = 'home.html';
     } catch (err) {
       console.error('Lỗi decode token:', err);

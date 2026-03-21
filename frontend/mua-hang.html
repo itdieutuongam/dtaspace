@@ -45,7 +45,6 @@
     select:focus   { outline:none; border-color:#d4af37; box-shadow:0 0 0 3px #d4af3744; }
     select:disabled{ opacity:.5; cursor:not-allowed; }
 
-    /* Cot hinh anh */
     .img-cell { display:flex; flex-direction:column; gap:6px; align-items:flex-start; }
     .img-link {
       display:inline-flex; align-items:center; gap:5px;
@@ -98,7 +97,7 @@
 <body>
 
 <header>
-  <h1>Quản lý Yêu cầu Mua Hàng - Diệu Tướng Am</h1>
+  <h1>Quản lý Yêu cầu Mua Hàng – Diệu Tướng Am</h1>
   <p>Danh sách đơn hàng từ khách hàng</p>
   <div class="header-meta">
     <a href="home.html" class="back-btn">← Quay về trang chủ</a>
@@ -131,20 +130,32 @@ const SHEET_ID = '1zfrE-ijCfdXvbdS3b_2ye1WMMjmCMyxtA2_ZHpQEhJw';
 const GID      = '1555363511';
 const API_URL  = 'https://script.google.com/macros/s/AKfycby2Zc3inC7xAf9wU1xMlXwvdf2maxbkC6Hzkj7oleMNpk034-bGMQrC8dxiWuyTtm0-VQ/exec';
 
-const userEmail    = (localStorage.getItem('userEmail') || '').trim().toLowerCase();
+// ── Kiểm tra đăng nhập ──────────────────────────
+const isLoggedIn = localStorage.getItem('userLoggedIn') === 'true';
+const userEmail  = (localStorage.getItem('userEmail') || '').trim().toLowerCase();
+
+function clearSession() {
+  localStorage.removeItem('userLoggedIn');
+  localStorage.removeItem('userName');
+  localStorage.removeItem('userEmail');
+}
+
 const level1Emails = ['thietke@dieutuongam.com'];
-const level2Emails = ['ptsp@dieutuongam.com', 'it@dieutuongam.com','lehuyen@dieutuongam.com','truongkhuong@dieutuongam.com','hongtuyet@dieutuongam.com'];
+const level2Emails = ['ptsp@dieutuongam.com','it@dieutuongam.com','lehuyen@dieutuongam.com','truongkhuong@dieutuongam.com','hongtuyet@dieutuongam.com'];
 
 let role = 0;
-if (!userEmail) {
-  alert('Vui long dang nhap de tiep tuc.');
+
+// Phải đăng nhập VÀ có email mới được vào
+if (!isLoggedIn || !userEmail) {
+  clearSession();
+  alert('Vui lòng đăng nhập để tiếp tục.');
   window.location.href = 'login.html';
 } else if (level1Emails.includes(userEmail)) {
   role = 1;
 } else if (level2Emails.includes(userEmail)) {
   role = 2;
 } else {
-  alert('Tai khoan khong co quyen truy cap trang nay.');
+  alert('Tài khoản không có quyền truy cập trang này.');
   window.location.href = 'home.html';
 }
 
@@ -152,6 +163,7 @@ const badge = document.getElementById('roleBadge');
 if (role === 1) { badge.textContent = '🎨 Thiết kế (Level 1)'; badge.classList.add('r1'); }
 if (role === 2) { badge.textContent = '🛒 Mua hàng (Level 2)'; badge.classList.add('r2'); }
 
+// ── Cấu hình cột ────────────────────────────────
 const COLS_COMMON = [
   { idx:0,  label:'STT' },
   { idx:1,  label:'Thời gian' },
@@ -168,6 +180,7 @@ const COL_K    = { idx:10, label:'Mua hàng',     isSelect: true, colSheet:11, e
 const COL_L    = { idx:11, label:'Trạng thái 2', isSelect: true, colSheet:12, editable:{1:false, 2:true},  options:['','DUYỆT','TỪ CHỐI'] };
 const ALL_COLS = [...COLS_COMMON, COL_HINH, COL_J, COL_K, COL_L];
 
+// ── Tải dữ liệu ─────────────────────────────────
 const READ_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&gid=${GID}`;
 
 fetch(READ_URL)
@@ -176,7 +189,7 @@ fetch(READ_URL)
     const json = text.substring(text.indexOf('(') + 1, text.lastIndexOf(')'));
     buildTable(JSON.parse(json).table.rows || []);
   })
-  .catch(err => {
+  .catch(() => {
     document.getElementById('loadingMsg').style.display = 'none';
     const el = document.getElementById('errorMsg');
     el.textContent = '❌ Không tải được dữ liệu. Kiểm tra Sheet đã publish public chưa.';
@@ -184,8 +197,7 @@ fetch(READ_URL)
   });
 
 function imgLinkHtml(val) {
-  if (!val) return '<span class="no-img">Chua co anh</span>';
-  // Rut gon hien thi nhung van giu full link trong href
+  if (!val) return '<span class="no-img">Chưa có ảnh</span>';
   return `<a href="${val}" target="_blank" class="img-link" title="${val}">🔗 Xem hình ảnh</a>`;
 }
 
@@ -210,16 +222,12 @@ function buildTable(rows) {
     ALL_COLS.forEach(col => {
       const cell = cells[col.idx];
       const val  = cell ? String(cell.v ?? cell.f ?? '') : '';
-
       if (col.isUpBtn) {
         const canEdit = col.editable[role] === true;
-        tbody += `<td>
-          <div class="img-cell">
-            ${imgLinkHtml(val)}
-            ${canEdit ? `<button class="up-btn" onclick="openModal(${sheetRow})">📷 UP HÌNH</button>` : ''}
-          </div>
-        </td>`;
-
+        tbody += `<td><div class="img-cell">
+          ${imgLinkHtml(val)}
+          ${canEdit ? `<button class="up-btn" onclick="openModal(${sheetRow})">📷 UP HÌNH</button>` : ''}
+        </div></td>`;
       } else if (col.isSelect) {
         const canEdit = col.editable[role] === true;
         if (canEdit) {
@@ -249,12 +257,10 @@ function statusPill(val) {
   return `<span class="status-pill ${map[val]||'pill-empty'}">${val}</span>`;
 }
 
-// Modal
 let _modalRow = null;
 function openModal(row) {
   _modalRow = row;
   document.getElementById('newImageUrl').value = '';
-  // Hien thi link hien tai vao input neu da co
   const tr = document.querySelector(`tr[data-row="${row}"]`);
   if (tr) {
     const link = tr.querySelector('.img-link');
@@ -269,22 +275,15 @@ function closeModal() {
 async function saveImage() {
   const link = document.getElementById('newImageUrl').value.trim();
   if (!link) { showToast('⚠️ Vui lòng dán link Drive!'); return; }
-
   const success = await postToSheet(_modalRow, 9, link);
   if (success) {
-    // Cap nhat link hien thi ngay lap tuc trong bang
     const tr = document.querySelector(`tr[data-row="${_modalRow}"]`);
     if (tr) {
       const imgCell = tr.querySelector('.img-cell');
       if (imgCell) {
-        // Xoa link/span cu, giu lai nut UP HINH
         imgCell.querySelectorAll('.img-link, .no-img').forEach(el => el.remove());
-        // Chen link moi vao dau
         const a = document.createElement('a');
-        a.href      = link;
-        a.target    = '_blank';
-        a.className = 'img-link';
-        a.title     = link;
+        a.href = link; a.target = '_blank'; a.className = 'img-link'; a.title = link;
         a.innerHTML = '🔗 Xem hình ảnh';
         imgCell.insertBefore(a, imgCell.firstChild);
       }
