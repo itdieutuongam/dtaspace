@@ -130,7 +130,6 @@ const SHEET_ID = '1zfrE-ijCfdXvbdS3b_2ye1WMMjmCMyxtA2_ZHpQEhJw';
 const GID      = '1555363511';
 const API_URL  = 'https://script.google.com/macros/s/AKfycby2Zc3inC7xAf9wU1xMlXwvdf2maxbkC6Hzkj7oleMNpk034-bGMQrC8dxiWuyTtm0-VQ/exec';
 
-// ── Kiểm tra đăng nhập ──────────────────────────
 const isLoggedIn = localStorage.getItem('userLoggedIn') === 'true';
 const userEmail  = (localStorage.getItem('userEmail') || '').trim().toLowerCase();
 
@@ -144,8 +143,6 @@ const level1Emails = ['thietke@dieutuongam.com'];
 const level2Emails = ['ptsp@dieutuongam.com','it@dieutuongam.com','lehuyen@dieutuongam.com','truongkhuong@dieutuongam.com','hongtuyet@dieutuongam.com'];
 
 let role = 0;
-
-// Phải đăng nhập VÀ có email mới được vào
 if (!isLoggedIn || !userEmail) {
   clearSession();
   alert('Vui lòng đăng nhập để tiếp tục.');
@@ -163,24 +160,23 @@ const badge = document.getElementById('roleBadge');
 if (role === 1) { badge.textContent = '🎨 Thiết kế (Level 1)'; badge.classList.add('r1'); }
 if (role === 2) { badge.textContent = '🛒 Mua hàng (Level 2)'; badge.classList.add('r2'); }
 
-// ── Cấu hình cột ────────────────────────────────
+// ── Cấu hình cột — minWidth áp dụng cho th/td ───
 const COLS_COMMON = [
-  { idx:0,  label:'STT' },
-  { idx:1,  label:'Thời gian' },
-  { idx:2,  label:'Họ và Tên' },
-  { idx:3,  label:'Số điện thoại' },
-  { idx:4,  label:'Nội dung 1' },
-  { idx:5,  label:'Nội dung 2' },
-  { idx:6,  label:'Nội dung 3' },
-  { idx:7,  label:'Nội dung 4' },
+  { idx:0, label:'Thời gian',     minWidth:'140px' },
+  { idx:1, label:'Email',         minWidth:'220px' },
+  { idx:2, label:'Họ và Tên',     minWidth:'220px' },
+  { idx:3, label:'Số điện thoại', minWidth:'220px' },
+  { idx:4, label:'Nội dung 1',    minWidth:'500px' },
+  { idx:5, label:'Nội dung 2',    minWidth:'500px' },
+  { idx:6, label:'Nội dung 3',    minWidth:'500px' },
+  { idx:7, label:'Nội dung 4',    minWidth:'500px' },
 ];
 const COL_HINH = { idx:8,  label:'Hình ảnh',    isUpBtn:  true, colSheet:9,  editable:{1:true,  2:false} };
-const COL_J    = { idx:9,  label:'Trạng thái 1', isSelect: true, colSheet:10, editable:{1:false, 2:true},  options:['','DUYỆT','TỪ CHỐI'] };
-const COL_K    = { idx:10, label:'Mua hàng',     isSelect: true, colSheet:11, editable:{1:false, 2:true},  options:['','ĐANG MUA','ĐÃ MUA'] };
-const COL_L    = { idx:11, label:'Trạng thái 2', isSelect: true, colSheet:12, editable:{1:false, 2:true},  options:['','DUYỆT','TỪ CHỐI'] };
+const COL_J    = { idx:9,  label:'Trạng thái 1', isSelect: true, colSheet:10, editable:{1:false, 2:true}, options:['','DUYỆT','TỪ CHỐI'] };
+const COL_K    = { idx:10, label:'Mua hàng',     isSelect: true, colSheet:11, editable:{1:false, 2:true}, options:['','ĐANG MUA','ĐÃ MUA'] };
+const COL_L    = { idx:11, label:'Trạng thái 2', isSelect: true, colSheet:12, editable:{1:false, 2:true}, options:['','DUYỆT','TỪ CHỐI'] };
 const ALL_COLS = [...COLS_COMMON, COL_HINH, COL_J, COL_K, COL_L];
 
-// ── Tải dữ liệu ─────────────────────────────────
 const READ_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&gid=${GID}`;
 
 fetch(READ_URL)
@@ -210,21 +206,29 @@ function buildTable(rows) {
     return;
   }
   const table = document.getElementById('mainTable');
+
+  // Header — áp dụng min-width từ config
   let thead = '<thead><tr>';
-  ALL_COLS.forEach(c => { thead += `<th>${c.label}</th>`; });
+  ALL_COLS.forEach(c => {
+    const style = c.minWidth ? ` style="min-width:${c.minWidth}"` : '';
+    thead += `<th${style}>${c.label}</th>`;
+  });
   thead += '</tr></thead>';
 
+  // Body — áp dụng min-width cho td cùng cột
   let tbody = '<tbody>';
   rows.forEach((row, i) => {
     const cells    = row.c || [];
     const sheetRow = i + 2;
     tbody += `<tr data-row="${sheetRow}">`;
     ALL_COLS.forEach(col => {
-      const cell = cells[col.idx];
-      const val  = cell ? String(cell.v ?? cell.f ?? '') : '';
+      const cell  = cells[col.idx];
+      const val   = cell ? String(cell.v ?? cell.f ?? '') : '';
+      const style = col.minWidth ? ` style="min-width:${col.minWidth}"` : '';
+
       if (col.isUpBtn) {
         const canEdit = col.editable[role] === true;
-        tbody += `<td><div class="img-cell">
+        tbody += `<td${style}><div class="img-cell">
           ${imgLinkHtml(val)}
           ${canEdit ? `<button class="up-btn" onclick="openModal(${sheetRow})">📷 UP HÌNH</button>` : ''}
         </div></td>`;
@@ -236,12 +240,12 @@ function buildTable(rows) {
             sel += `<option value="${opt}" ${val===opt?'selected':''}>${opt||'— Chưa chọn —'}</option>`;
           });
           sel += '</select>';
-          tbody += `<td>${sel}</td>`;
+          tbody += `<td${style}>${sel}</td>`;
         } else {
-          tbody += `<td>${statusPill(val)}</td>`;
+          tbody += `<td${style}>${statusPill(val)}</td>`;
         }
       } else {
-        tbody += `<td>${val}</td>`;
+        tbody += `<td${style}>${val}</td>`;
       }
     });
     tbody += '</tr>';
