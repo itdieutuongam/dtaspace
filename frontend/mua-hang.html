@@ -45,6 +45,12 @@
     select:focus   { outline:none; border-color:#d4af37; box-shadow:0 0 0 3px #d4af3744; }
     select:disabled{ opacity:.5; cursor:not-allowed; }
 
+    /* Màu select theo giá trị */
+    select.sel-duyet   { background:#d4edda; color:#155724; border-color:#28a745; font-weight:700; }
+    select.sel-tuchoi  { background:#f8d7da; color:#721c24; border-color:#dc3545; font-weight:700; }
+    select.sel-dangmua { background:#cce5ff; color:#004085; border-color:#007bff; font-weight:700; }
+    select.sel-damua   { background:#d4edda; color:#155724; border-color:#28a745; font-weight:700; }
+
     .img-cell { display:flex; flex-direction:column; gap:6px; align-items:flex-start; }
     .img-link {
       display:inline-flex; align-items:center; gap:5px;
@@ -139,8 +145,8 @@ function clearSession() {
   localStorage.removeItem('userEmail');
 }
 
-const level1Emails = ['thietke@dieutuongam.com'];
-const level2Emails = ['ptsp@dieutuongam.com','it@dieutuongam.com','lehuyen@dieutuongam.com','truongkhuong@dieutuongam.com','hongtuyet@dieutuongam.com'];
+const level1Emails = ['it@dieutuongam.com','thietke@dieutuongam.com'];
+const level2Emails = ['ptsp@dieutuongam.com','lehuyen@dieutuongam.com','truongkhuong@dieutuongam.com','hongtuyet@dieutuongam.com'];
 
 let role = 0;
 if (!isLoggedIn || !userEmail) {
@@ -235,7 +241,7 @@ function buildTable(rows) {
       } else if (col.isSelect) {
         const canEdit = col.editable[role] === true;
         if (canEdit) {
-          let sel = `<select onchange="updateCell(this,${sheetRow},${col.colSheet})">`;
+          let sel = `<select onchange="applySelectColor(this);updateCell(this,${sheetRow},${col.colSheet})">`;
           col.options.forEach(opt => {
             sel += `<option value="${opt}" ${val===opt?'selected':''}>${opt||'— Chưa chọn —'}</option>`;
           });
@@ -253,6 +259,8 @@ function buildTable(rows) {
   tbody += '</tbody>';
   table.innerHTML = thead + tbody;
   document.getElementById('tableWrap').style.display = 'block';
+  // Tô màu tất cả select sau khi render
+  document.querySelectorAll('select').forEach(applySelectColor);
 }
 
 function statusPill(val) {
@@ -295,6 +303,12 @@ async function saveImage() {
     showToast('✅ Đã cập nhật hình ảnh!');
     closeModal();
   }
+}
+
+function applySelectColor(sel) {
+  sel.classList.remove('sel-duyet','sel-tuchoi','sel-dangmua','sel-damua');
+  const map = { 'DUYỆT':'sel-duyet', 'TỪ CHỐI':'sel-tuchoi', 'ĐANG MUA':'sel-dangmua', 'ĐÃ MUA':'sel-damua' };
+  if (map[sel.value]) sel.classList.add(map[sel.value]);
 }
 
 async function updateCell(selectEl, sheetRow, colSheet) {
